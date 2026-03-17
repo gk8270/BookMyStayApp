@@ -1,62 +1,53 @@
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 
-abstract class Room {
-    protected String roomType;
-    protected int beds;
-    protected double price;
+class Reservation {
+    private String guestName;
+    private String roomType;
 
-    public Room(String roomType, int beds, double price) {
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
         this.roomType = roomType;
-        this.beds = beds;
-        this.price = price;
     }
 
-    public void displayRoomDetails() {
-        System.out.println("Room Type: " + roomType);
-        System.out.println("Beds: " + beds);
-        System.out.println("Price per night: ₹" + price);
+    public String getGuestName() {
+        return guestName;
     }
 
     public String getRoomType() {
         return roomType;
     }
-}
 
-class SingleRoom extends Room {
-    public SingleRoom() {
-        super("Single Room", 1, 2000);
+    public void displayReservation() {
+        System.out.println("Guest: " + guestName + ", Requested Room: " + roomType);
     }
 }
 
-class DoubleRoom extends Room {
-    public DoubleRoom() {
-        super("Double Room", 2, 3500);
-    }
-}
+class BookingRequestQueue {
+    private Queue<Reservation> requestQueue = new LinkedList<>();
 
-class SuiteRoom extends Room {
-    public SuiteRoom() {
-        super("Suite Room", 3, 6000);
-    }
-}
-
-class Inventory {
-    private Map<String, Integer> roomAvailability = new HashMap<>();
-
-    public Inventory() {
-        roomAvailability.put("Single Room", 5);
-        roomAvailability.put("Double Room", 3);
-        roomAvailability.put("Suite Room", 2);
+    public void addRequest(Reservation reservation) {
+        requestQueue.offer(reservation);
     }
 
-    public int getAvailability(String roomType) {
-        return roomAvailability.getOrDefault(roomType, 0);
+    public Reservation processNextRequest() {
+        return requestQueue.poll();
     }
 
-    public Map<String, Integer> getAllAvailability() {
-        return new HashMap<>(roomAvailability); // Return copy for read-only access
+    public boolean hasPendingRequests() {
+        return !requestQueue.isEmpty();
+    }
+
+    public void displayAllRequests() {
+        if (requestQueue.isEmpty()) {
+            System.out.println("No pending booking requests.");
+        } else {
+            System.out.println("Pending Booking Requests:");
+            for (Reservation r : requestQueue) {
+                r.displayReservation();
+            }
+        }
     }
 }
 
@@ -64,25 +55,20 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("===== Book My Stay App - Room Search =====");
+        System.out.println("===== Book My Stay App - Booking Requests =====");
 
-        // Create room objects
-        Room[] rooms = {new SingleRoom(), new DoubleRoom(), new SuiteRoom()};
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        // Centralized inventory
-        Inventory inventory = new Inventory();
+        Reservation r1 = new Reservation("Alice", "Single Room");
+        Reservation r2 = new Reservation("Bob", "Double Room");
+        Reservation r3 = new Reservation("Charlie", "Suite Room");
 
-        System.out.println("\nAvailable Rooms:");
+        bookingQueue.addRequest(r1);
+        bookingQueue.addRequest(r2);
+        bookingQueue.addRequest(r3);
 
-        for (Room room : rooms) {
-            int available = inventory.getAvailability(room.getRoomType());
-            if (available > 0) { // Only show rooms with availability
-                room.displayRoomDetails();
-                System.out.println("Available Rooms: " + available);
-                System.out.println("---------------------------");
-            }
-        }
+        bookingQueue.displayAllRequests();
 
-        System.out.println("\nThank you for searching rooms in Book My Stay App!");
+        System.out.println("\nBooking requests are queued and ready for allocation.");
     }
 }

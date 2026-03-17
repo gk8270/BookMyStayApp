@@ -1,5 +1,4 @@
 
-
 abstract class Room {
     protected String roomType;
     protected int beds;
